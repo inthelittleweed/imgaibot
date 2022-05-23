@@ -1,6 +1,15 @@
 const TeleBot = require('telebot');
 const { token } = require('./config.json')
-const bot = new TeleBot(token);
+const bot = new TeleBot({
+	token: token,
+    usePlugins: ['floodProtection'],
+    pluginConfig: {
+        floodProtection: {
+            interval: 2,
+            message: 'Too many messages, relax!'
+        }
+    }
+});
 const WomboDreamApi = require('wombo-dream-api');
 
 // STYLES -----------------------------------------------------------------------------------------
@@ -40,19 +49,12 @@ bot.on('text', msg => {
 
     bot.sendMessage(id, 'Generating image, please wait...')
 
-    setInterval(() => {
-        bot.editMessageText(
-            {id, id}, `<b>Current time:</b> ${ time() }`,
-            {parseMode: 'html'}
-        ).catch(error => console.log('Error:', error));
-    }, 1000);
-
     WomboDreamApi.buildDefaultInstance()
 	.generatePicture(text, last[0], (task) => {
 		console.log(task.state, 'stage', task.photo_url_list.length);
 
 	})
-	.then((task) => bot.sendPhoto(id, task?.result.final))
+	.then((task) => bot.sendPhoto(id, task.result.final))
 	.catch(console.error);
 });
 
@@ -78,7 +80,7 @@ bot.on('inlineQuery', msg => {
         id: 'query',
         title: 'Image AI',
         description: `Image:`,
-        message_text: task?.result.final
+        message_text: task.result.final
     }))
     .then((task) => (bot.answerQuery(answers)))
 	.catch(console.error)
