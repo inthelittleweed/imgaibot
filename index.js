@@ -2,8 +2,9 @@ const TeleBot = require('telebot');
 const { token } = require('./config.json')
 const bot = new TeleBot({
 	token: token,
-    usePlugins: ['floodProtection'],
-    pluginConfig: {
+	pluginFolder: '../plugins/',
+    	usePlugins: ['floodProtection'],
+    	pluginConfig: {
         floodProtection: {
             interval: 2,
             message: 'Too many messages, relax!'
